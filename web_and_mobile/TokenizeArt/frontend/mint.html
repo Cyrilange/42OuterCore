@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TokenizerArt #42 - Neon Beach</title>
+    <link rel="stylesheet" href="mint.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Neon Beach NFT Minter</h1>
+        
+        <button id="connectBtn">Connect MetaMask</button>
+        <p id="walletAddress"></p>
+
+        <hr>
+
+        <div id="mintSection" style="display: none;">
+            <h3>Mint new NFT</h3>
+            <input type="text" id="tokenUriInput" placeholder="ipfs://votre-lien-json">
+            <button id="mintBtn">NFT Mint</button>
+            <p id="statusText"></p>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js"></script>
+    <script src="mint.js"></script>
+</body>
+</html>

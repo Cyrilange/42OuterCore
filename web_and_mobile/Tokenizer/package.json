@@ -1,0 +1,26 @@
+{
+  "name": "tokenizer",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "bash deploy.sh",
+    "frontend": "cd socialfi-frontend && npm install && npm run dev"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Cyrilange/Tokenizer.git"
+  },
+  "keywords": [],
+  "author": "csalamit",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Cyrilange/Tokenizer/issues"
+  },
+  "homepage": "https://github.com/Cyrilange/Tokenizer#readme",
+  "dependencies": {
+    "@openzeppelin/contracts": "^5.6.1",
+    "ethers": "^6.16.0"
+  },
+  "description": "SocialFii42 — ERC20 token built with Foundry, deployed on Sepolia"
+}

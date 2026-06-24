@@ -1,0 +1,6 @@
+[profile.default]
+src = "sources/contract"
+out = "out"
+libs = ["lib"]
+test = "sources/test"
+remappings = ["@openzeppelin/=lib/openzeppelin-contracts/"]

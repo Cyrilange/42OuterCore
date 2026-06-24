@@ -1,0 +1,9 @@
+.home {
+	background-color: rgba(79, 68, 68, 0.762);
+	max-width: 850px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	margin: 0 auto;
+}

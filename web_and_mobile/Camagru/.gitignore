@@ -1,0 +1,6 @@
+.env
+cert.pem
+key.pem
+node_modules
+backend/uploads
+backend/.env

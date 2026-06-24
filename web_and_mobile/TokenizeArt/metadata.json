@@ -1,0 +1,23 @@
+{
+	"name": "tokenizerArt #42 - Neon Beach",
+	"description": "A unique vaporwave NFT artwork generated for the tokenizerArt project, blending decentralized code structures, a tropical beach vibe, and the ultimate number 42.",
+	"image": "ipfs://bafybeiardzgyf3ifrcixf7ywmb2jvqzymyxipzyd55xsts5ueta3vt72fy",
+	"attributes": [
+	  {
+		"trait_type": "Collection",
+		"value": "tokenizerArt"
+	  },
+	  {
+		"trait_type": "Theme",
+		"value": "Vaporwave Beach"
+	  },
+	  {
+		"trait_type": "artiste",
+		"value": "csalamit"
+	  },
+	  {
+		"trait_type": "Legendary Number",
+		"value": "42"
+	  }
+	]
+  }

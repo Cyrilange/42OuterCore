@@ -1,0 +1,11 @@
+{
+	"name": "computerv1",
+	"version": "1.0.0",
+	"author" : "Csalamit",
+	"type": "module",
+	"scripts": {
+	   "test": "node function.test.mjs",
+	   "start" :" node polynomial/poly.js"
+	}
+	
+  }

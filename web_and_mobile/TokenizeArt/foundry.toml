@@ -1,0 +1,11 @@
+[profile.default]
+src = "code"           
+out = "out"
+libs = ["lib"]
+test = "test"
+script = "mint"
+
+
+remappings = [
+    "@openzeppelin/=lib/openzeppelin-contracts/"
+]
