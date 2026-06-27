@@ -6,7 +6,7 @@
 /*   By: csalamit <csalamit@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/04 10:08:07 by csalamit          #+#    #+#             */
-/*   Updated: 2026/06/05 12:09:38 by csalamit         ###   ########.fr       */
+/*   Updated: 2026/06/27 19:23:47 by csalamit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,9 +25,8 @@ void	print_flag(t_flags f, char *algo, unsigned char *d, int len, char *str, int
 		size_t	slen = str ? ft_strlen(str) : 0;
 		if (slen > 0 && str[slen - 1] == '\n') slen--;
 		if (!f.q) {
-			write(1, "(\"", 2);
 			if (str) write(1, str, slen);
-			write(1, "\")= ", 4);
+			write(1, " ", 1);
 		}
 		print_digest(d, len);
 		write(1, "\n", 1);
@@ -40,7 +39,7 @@ void	print_flag(t_flags f, char *algo, unsigned char *d, int len, char *str, int
 	}
 	if (f.r) {
 		print_digest(d, len);
-		write(1, " ", 1);
+		write(1, "  ", 2);
 		if (str) {
 			if (is_file == 1)
 				write(1, str, ft_strlen(str));
@@ -55,7 +54,8 @@ void	print_flag(t_flags f, char *algo, unsigned char *d, int len, char *str, int
 	}
 	if (is_file == 1) {
 		if (!str) {
-			write(1, "(stdin)= ", 9);
+			write(1, algo, ft_strlen(algo));
+			write(1, " (stdin)= ", 11);
 		} else {
 			write(1, algo, ft_strlen(algo));
 			write(1, " (", 2);
@@ -67,7 +67,7 @@ void	print_flag(t_flags f, char *algo, unsigned char *d, int len, char *str, int
 		write(1, " (\"", 3);
 		if (str)
 			write(1, str, ft_strlen(str));
-		write(1, "\") = ", 5);
+		write(1, "\")= ", 4);
 	}
 	print_digest(d, len);
 	write(1, "\n", 1);

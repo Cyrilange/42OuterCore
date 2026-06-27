@@ -1,109 +1,129 @@
 #!/bin/bash
 
-echo "=== setup ==="
-echo "hello world" > /tmp/test1.txt
-echo "42 is nice" > /tmp/test2.txt
-echo "https://www.42.fr/" > website
-echo "And above all," > file
+FT_SSL=${1:-./ft_ssl}
+TMP_DIR=$(mktemp -d)
+PASS=0
+FAIL=0
 
-echo "=== md5 files ==="
-valgrind ./ft_ssl md5 /tmp/test1.txt
-valgrind ./ft_ssl md5 /tmp/test2.txt
-valgrind ./ft_ssl md5 -r /tmp/test1.txt
-valgrind ./ft_ssl md5 -q /tmp/test1.txt
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
 
-echo "=== sha256 files ==="
-valgrind ./ft_ssl sha256 /tmp/test1.txt
-valgrind ./ft_ssl sha256 /tmp/test2.txt
-valgrind ./ft_ssl sha256 -r /tmp/test1.txt
-valgrind ./ft_ssl sha256 -q /tmp/test1.txt
+title() {
+	echo ""
+	echo -e "${BLUE}=== $1 ===${NC}"
+}
 
-echo "=== edge cases ==="
-valgrind ./ft_ssl md5 /tmp/inexistant.txt
-valgrind ./ft_ssl md5 /dev/null
-valgrind ./ft_ssl sha256 /dev/null
+check_diff() {
+	local label="$1"
+	local file_a="$2"
+	local file_b="$3"
 
-echo "=== strings ==="
-valgrind ./ft_ssl md5 -s "42 is nice"
-valgrind ./ft_ssl md5 -s -r "42 is nice"
-valgrind ./ft_ssl md5 -s -q "42 is nice"
-valgrind ./ft_ssl sha256 -s "42 is nice"
-valgrind ./ft_ssl sha256 -s -r "42 is nice"
-valgrind ./ft_ssl sha256 -s -q "42 is nice"
+	if diff -q "$file_a" "$file_b" > /dev/null 2>&1; then
+		echo -e "${GREEN}[OK]${NC} $label"
+		PASS=$((PASS+1))
+	else
+		echo -e "${RED}[FAIL]${NC} $label"
+		echo "   --- expected ---"
+		sed 's/^/   /' "$file_a"
+		echo "   --- got ---"
+		sed 's/^/   /' "$file_b"
+		FAIL=$((FAIL+1))
+	fi
+}
 
-echo "=== flag -p ==="
-echo "42 is nice" | valgrind ./ft_ssl md5 -p
-echo "42 is nice" | valgrind ./ft_ssl md5 -p -q
-echo "42 is nice" | valgrind ./ft_ssl md5 -p -r
-echo "42 is nice" | valgrind ./ft_ssl md5 -p -s "hello"
-echo "42 is nice" | valgrind ./ft_ssl sha256 -p
-echo "42 is nice" | valgrind ./ft_ssl sha256 -p -q
-echo "42 is nice" | valgrind ./ft_ssl sha256 -p -r
-echo "42 is nice" | valgrind ./ft_ssl sha256 -p -s "hello"
+check_nonempty() {
+	local label="$1"
+	local file="$2"
 
-echo "=== subject tests ==="
-valgrind ./ft_ssl sha256 -q website
-echo "expected: 1ceb55d2845d9dd98557b50488db12bbf51aaca5aa9c1199eb795607a2457daf"
-sha256sum website
+	if [ -s "$file" ]; then
+		echo -e "${GREEN}[OK]${NC} $label"
+		PASS=$((PASS+1))
+	else
+		echo -e "${RED}[FAIL]${NC} $label"
+		FAIL=$((FAIL+1))
+	fi
+}
 
-valgrind ./ft_ssl sha256 -s "42 is nice"
-echo "expected: SHA256 (\"42 is nice\") = b7e44c7a40c5f80139f0a50f3650fb2bd8d00b0d24667c4c2ca32c88e13b758f"
-echo -n "42 is nice" | sha256sum
+if [ ! -x "$FT_SSL" ]; then
+	echo -e "${RED}Error: $FT_SSL not found or not executable.${NC}"
+	exit 1
+fi
 
-echo "42 is nice" | valgrind ./ft_ssl md5
-echo "expected: (stdin)= 35f1d6de0302e2086a4e472266efb3a9"
-echo "42 is nice" | md5sum
+echo -e "${YELLOW}Binary tested: $FT_SSL${NC}"
+echo -e "${YELLOW}Temp directory: $TMP_DIR${NC}"
 
-echo "42 is nice" | valgrind ./ft_ssl md5 -p
-echo "expected: (\"42 is nice\")= 35f1d6de0302e2086a4e472266efb3a9"
+FILE="$TMP_DIR/file"
+IPSUM="$TMP_DIR/some_ipsum"
 
-echo "Pity the living." | valgrind ./ft_ssl md5 -q -r
-echo "expected: e20c3b973f63482a778f3fd1869b7f25"
+echo 'is md5("salt") a salted hash?' > "$FILE"
+echo "Lorem ipsum dolor amet thundercats letterpress cray portland cornhole" > "$IPSUM"
 
-valgrind ./ft_ssl md5 file
-echo "expected: MD5 (file) = 53d53ea94217b259c11a5a2d104ec58a"
+title "1. General behavior"
 
-valgrind ./ft_ssl md5 -r file
-echo "expected: 53d53ea94217b259c11a5a2d104ec58a file"
+"$FT_SSL" > "$TMP_DIR/no_args.out" 2>&1
+check_nonempty "Run with no arguments" "$TMP_DIR/no_args.out"
 
-valgrind ./ft_ssl md5 -s "pity those that aren't following baerista on spotify."
-echo "expected: MD5 (\"pity those that aren't following baerista on spotify.\") = a3c990a1964705d9bf0e602f44572f5f"
+"$FT_SSL" foo > "$TMP_DIR/bad_cmd.out" 2>&1
+check_nonempty "Invalid command" "$TMP_DIR/bad_cmd.out"
 
-echo "be sure to handle edge cases carefully" | valgrind ./ft_ssl md5 -p file
-echo "expected: (\"be sure to handle edge cases carefully\")= 3553dc7dc5963b583c056d1b9fa3349c"
-echo "expected: MD5 (file) = 53d53ea94217b259c11a5a2d104ec58a"
+title "2. Command dispatcher"
+echo "Check manually in the source code (0 to 5)"
 
-echo "some of this will not make sense at first" | valgrind ./ft_ssl md5 file
-echo "expected: MD5 (file) = 53d53ea94217b259c11a5a2d104ec58a"
+title "3. MD5 - correctness"
 
-echo "but eventually you will understand" | valgrind ./ft_ssl md5 -p -r file
-echo "expected: (\"but eventually you will understand\")= dcdd84e0f635694d2a943fa8d3905281"
-echo "expected: 53d53ea94217b259c11a5a2d104ec58a file"
+"$FT_SSL" md5 "$FILE" > "$TMP_DIR/md5_ftssl.out" 2>&1
+md5sum --tag "$FILE" > "$TMP_DIR/md5_ref.out" 2>&1
+check_diff "md5 == md5sum --tag" "$TMP_DIR/md5_ref.out" "$TMP_DIR/md5_ftssl.out"
 
-echo "GL HF let's go" | valgrind ./ft_ssl md5 -p -s "foo" file
-echo "expected: (\"GL HF let's go\")= d1e3cc342b6da09480b27ec57ff243e2"
-echo "expected: MD5 (\"foo\") = acbd18db4cc2f85cedef654fccc4a4d8"
-echo "expected: MD5 (file) = 53d53ea94217b259c11a5a2d104ec58a"
+title "4. Flag -q (md5)"
 
-echo "one more thing" | valgrind ./ft_ssl md5 -r -p -s "foo" file -s "bar"
-echo "expected: (\"one more thing\")= a0bd1876c6f011dd50fae52827f445f5"
-echo "expected: acbd18db4cc2f85cedef654fccc4a4d8 \"foo\""
-echo "expected: 53d53ea94217b259c11a5a2d104ec58a file"
-echo "expected: ft_ssl: md5: -s: No such file or directory"
-echo "expected: ft_ssl: md5: bar: No such file or directory"
+md5sum "$FILE" | awk '{print $1}' > "$TMP_DIR/hash_1"
+"$FT_SSL" md5 -q "$FILE" > "$TMP_DIR/hash_2"
+check_diff "md5 -q" "$TMP_DIR/hash_1" "$TMP_DIR/hash_2"
 
-echo "just to be extra clear" | valgrind ./ft_ssl md5 -r -q -p -s "foo" file
-echo "expected: just to be extra clear"
-echo "expected: 3ba35f1ea0d170cb3b9a752e3360286c"
-echo "expected: acbd18db4cc2f85cedef654fccc4a4d8"
-echo "expected: 53d53ea94217b259c11a5a2d104ec58a"
+title "5. Flags -r and -s (md5)"
 
-echo "=== reference checksums ==="
-md5sum /tmp/test1.txt
-md5sum /tmp/test2.txt
-sha256sum /tmp/test1.txt
-sha256sum /tmp/test2.txt
-echo -n "42 is nice" | md5sum
-echo -n "42 is nice" | sha256sum
-echo -n "hello" | md5sum
-echo -n "hello" | sha256sum
+md5sum "$FILE" > "$TMP_DIR/md5_r_ref.out"
+"$FT_SSL" md5 -r "$FILE" > "$TMP_DIR/md5_r_ftssl.out"
+check_diff "md5 -r" "$TMP_DIR/md5_r_ref.out" "$TMP_DIR/md5_r_ftssl.out"
+
+"$FT_SSL" md5 -s "pity those that aren't following baerista on spotify."
+
+title "6. Flag -p (md5)"
+
+VAR="Magic mirror on the wall, think I wanna smash them all?"
+
+echo "$VAR" | md5sum | awk -v var="$VAR" '{print var " " $1}' > "$TMP_DIR/p_ref.out"
+echo "$VAR" | "$FT_SSL" md5 -p > "$TMP_DIR/p_ftssl.out"
+check_diff "md5 -p" "$TMP_DIR/p_ref.out" "$TMP_DIR/p_ftssl.out"
+
+title "7. SHA256 - correctness"
+
+openssl sha256 "$IPSUM" | awk '{print $2}' > "$TMP_DIR/sha_ref.out"
+"$FT_SSL" sha256 -q "$IPSUM" > "$TMP_DIR/sha_ftssl.out"
+check_diff "sha256 -q == openssl" "$TMP_DIR/sha_ref.out" "$TMP_DIR/sha_ftssl.out"
+
+title "8. Flags -q / -r / -s / -p with SHA256"
+
+sha256sum "$IPSUM" | awk '{print $1}' > "$TMP_DIR/sha256_q_ref.out"
+"$FT_SSL" sha256 -q "$IPSUM" > "$TMP_DIR/sha256_q_ftssl.out"
+check_diff "sha256 -q" "$TMP_DIR/sha256_q_ref.out" "$TMP_DIR/sha256_q_ftssl.out"
+
+sha256sum "$IPSUM" > "$TMP_DIR/sha256_r_ref.out"
+"$FT_SSL" sha256 -r "$IPSUM" > "$TMP_DIR/sha256_r_ftssl.out"
+check_diff "sha256 -r" "$TMP_DIR/sha256_r_ref.out" "$TMP_DIR/sha256_r_ftssl.out"
+
+echo "$VAR" | sha256sum | awk -v var="$VAR" '{print var " " $1}' > "$TMP_DIR/sha256_p_ref.out"
+echo "$VAR" | "$FT_SSL" sha256 -p > "$TMP_DIR/sha256_p_ftssl.out"
+check_diff "sha256 -p" "$TMP_DIR/sha256_p_ref.out" "$TMP_DIR/sha256_p_ftssl.out"
+
+"$FT_SSL" sha256 -s "pity those that aren't following baerista on spotify."
+
+title "SUMMARY"
+echo -e "${GREEN}Passed: $PASS${NC}"
+echo -e "${RED}Failed: $FAIL${NC}"
+
+rm -rf "$TMP_DIR"
