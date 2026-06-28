@@ -18,7 +18,7 @@ def load_data():
                 try:
                     miles.append(float(row[0]))
                     prices.append(float(row[1]))
-                except:
+                except ValueError:
                     continue
 
     except FileNotFoundError:

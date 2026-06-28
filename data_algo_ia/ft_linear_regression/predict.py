@@ -22,29 +22,28 @@ def load_model():
 
     return model["theta0"], model["theta1"]
 
+
 def estimate_price(mileage, theta0, theta1):
     return theta0 + theta1 * mileage
 
+
 def compute_precision(miles, prices, theta0, theta1):
     m = len(miles)
- 
+
     predictions = [estimate_price(x / 100000, theta0, theta1) for x in miles]
- 
 
     mae = sum(abs(predictions[i] - prices[i]) for i in range(m)) / m
- 
 
     mse = sum((predictions[i] - prices[i]) ** 2 for i in range(m)) / m
     rmse = mse ** 0.5
- 
-  
+
     mean_price = sum(prices) / m
     ss_res = sum((prices[i] - predictions[i]) ** 2 for i in range(m))
     ss_tot = sum((prices[i] - mean_price) ** 2 for i in range(m))
     r2 = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0
- 
+
     return mae, rmse, r2
- 
+
 
 def get_mileage():
     while True:
@@ -69,6 +68,7 @@ def main():
         print("Estimated price: 0")
     else:
         print(f"Estimated price: {price:.2f}")
+
 
 if __name__ == "__main__":
     main()
