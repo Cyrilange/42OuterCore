@@ -80,7 +80,7 @@ def main():
     miles = [x / 100000 for x in miles_raw]
 
     lr = 0.01
-    it = 5000
+    it = 10000
 
     theta0, theta1 = train(miles, prices, lr, it)
 

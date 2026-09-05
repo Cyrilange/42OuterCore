@@ -1,7 +1,7 @@
 import json
 import os
 import sys
-
+from train import load_data
 
 def load_model():
     if not os.path.exists("model.json"):
@@ -59,16 +59,27 @@ def get_mileage():
 
 def main():
     theta0, theta1 = load_model()
+
+    miles, prices = load_data()
+
+    mae, rmse, r2 = compute_precision(
+        miles, prices, theta0, theta1
+    )
+
+    print(f"MAE: {mae:.2f}")
+    print(f"RMSE: {rmse:.2f}")
+    print(f"R²: {r2:.2f}")
+
     mileage = get_mileage() / 100000
 
     price = estimate_price(mileage, theta0, theta1)
+
     if price < 0:
         print("Estimated price: 0 (price cannot be negative)")
     elif price == 0:
         print("Estimated price: 0")
     else:
         print(f"Estimated price: {price:.2f}")
-
 
 if __name__ == "__main__":
     main()
