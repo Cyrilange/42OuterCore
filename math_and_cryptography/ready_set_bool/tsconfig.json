@@ -1,0 +1,25 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "CommonJS",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "rootDir": ".",
+    "outDir": "./dist"
+  },
+  "include": [
+    "ex00/**/*.ts",
+    "ex01/**/*.ts",
+    "ex02/**/*.ts",
+    "ex03/**/*.ts",
+    "ex04/**/*.ts",
+    "ex05/**/*.ts",
+    "ex06/**/*.ts",
+    "ex07/**/*.ts",
+    "ex08/**/*.ts",
+    "ex09/**/*.ts",
+    "ex10/**/*.ts",
+    "ex11/**/*.ts"
+  ]
+}
