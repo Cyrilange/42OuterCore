@@ -6,7 +6,7 @@
 /*   By: csalamit <csalamit@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 11:27:11 by csalamit          #+#    #+#             */
-/*   Updated: 2026/06/04 18:20:01 by csalamit         ###   ########.fr       */
+/*   Updated: 2026/09/15 17:36:32 by csalamit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,8 @@ void *ft_calloc(size_t count, size_t size)
 	size_t          i;
 	unsigned char   *p;
 
+	if (size != 0 && count > (size_t)-1 / size)
+    	return (NULL);
 	total_size = count * size;
 
 	ptr = malloc(total_size);
@@ -76,30 +78,30 @@ void *ft_calloc(size_t count, size_t size)
 	return (ptr);
 }
 
-double ft_fabs(double x) {
-    if (x < 0)
-        return (-x);
-    return (x);
-}
+// double ft_fabs(double x) {
+//     if (x < 0)
+//         return (-x);
+//     return (x);
+// }
 
 
 
-double ft_sin(double x) {
-    double term;
-    double sum;
-    int    i;
+// double ft_sin(double x) {
+//     double term;
+//     double sum;
+//     int    i;
 
-    term = x;
-    sum = x;
-    i = 1;
-    while (i < 15)
-    {
-        term = -term * x * x / ((2 * i) * (2 * i + 1));
-        sum += term;
-        i++;
-    }
-    return (sum);
-}
+//     term = x;
+//     sum = x;
+//     i = 1;
+//     while (i < 15)
+//     {
+//         term = -term * x * x / ((2 * i) * (2 * i + 1));
+//         sum += term;
+//         i++;
+//     }
+//     return (sum);
+// }
 
 void ft_printf_hex(unsigned char byte) {
 
@@ -110,36 +112,31 @@ void ft_printf_hex(unsigned char byte) {
 	write(1, &second_digit, 1);
 }
 
-unsigned char   *read_fd(int fd, size_t *out_len) {
-    unsigned char   *buf = NULL;
-    unsigned char   tmp[4096];
-    size_t          total = 0;
-    ssize_t         n;
+unsigned char *read_fd(int fd, size_t *out_len)
+{
+    unsigned char *buf;
+    unsigned char *tmp;
+    size_t cap = 65536;
+    size_t total = 0;
+    ssize_t n;
 
-    while ((n = read(fd, tmp, 4096)) > 0) {
-        unsigned char *new = ft_realloc(buf, total, total + (size_t)n + 1);
-        if (!new) {
-            free(buf);
-            *out_len = 0;
-            return NULL;
-        }
-        buf = new;
-        ft_memcpy(buf + total, tmp, (size_t)n);
+    *out_len = 0;
+    buf = malloc(cap);
+    if (!buf)
+        return (NULL);
+    while ((n = read(fd, buf + total, cap - total - 1)) > 0) {
         total += (size_t)n;
-    }
-
-    if (!buf) {
-        buf = malloc(1);
-        if (!buf)
-        {
-            *out_len = 0;
-            return NULL;
+        if (total + 1 >= cap) {
+            tmp = ft_realloc(buf, total, cap * 2);
+            if (!tmp) { free(buf); return (NULL); }
+            buf = tmp;
+            cap *= 2;
         }
     }
-
+    if (n < 0) { free(buf); return (NULL); }
     buf[total] = '\0';
     *out_len = total;
-    return buf;
+    return (buf);
 }
 
 void	*ft_realloc(void *ptr, size_t old_size, size_t new_size)

@@ -6,7 +6,7 @@
 /*   By: csalamit <csalamit@student.42malaga.com    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/06/02 11:46:41 by csalamit          #+#    #+#             */
-/*   Updated: 2026/06/03 12:04:58 by csalamit         ###   ########.fr       */
+/*   Updated: 2026/09/15 17:44:12 by csalamit         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,21 +54,26 @@ static const int S[] = {
 };
 
 
-static unsigned char	*ft_padding(const unsigned char *message, size_t original_size, size_t *new_size)
+static unsigned char    *ft_padding(const unsigned char *message, size_t original_size, size_t *new_size)
 {
-	uint64_t		bits_size;
-	unsigned char	*padded_msg;
+        uint64_t                bits_size;
+        unsigned char   *padded_msg;
+        int                             i;
 
-	*new_size = ((original_size + 9 + 63) / 64) * 64;
-	padded_msg = ft_calloc(*new_size, sizeof(unsigned char));
-	if (!padded_msg)
-		return (NULL);
-	if (message && original_size > 0)
-		ft_memcpy(padded_msg, message, original_size);
-	padded_msg[original_size] = 0x80;
-	bits_size = (uint64_t)original_size * 8;
-	ft_memcpy(padded_msg + *new_size - 8, &bits_size, sizeof(uint64_t));
-	return (padded_msg);
+        *new_size = ((original_size + 9 + 63) / 64) * 64;
+        padded_msg = ft_calloc(*new_size, sizeof(unsigned char));
+        if (!padded_msg)
+                return (NULL);
+        if (message && original_size > 0)
+                ft_memcpy(padded_msg, message, original_size);
+        padded_msg[original_size] = 0x80;
+        bits_size = (uint64_t)original_size * 8;
+        i = 0;
+        while (i < 8) {
+                padded_msg[*new_size - 8 + i] = (bits_size >> (i * 8)) & 0xff;
+                i++;
+        }
+        return (padded_msg);
 }
 
 
@@ -89,15 +94,25 @@ void	ft_md5_algo(const unsigned char *message, size_t len, unsigned char *digest
 
 	while (offset < new_size)
 	{
-		unsigned char	*block = padding + offset;
-		uint32_t		*X = (uint32_t *)block;
-		uint32_t		a = A;
-		uint32_t		b = B;
-		uint32_t		c = C;
-		uint32_t		d = D;
-		int				i;
-		uint32_t		f;
-		uint32_t		g;
+		unsigned char   *block = padding + offset;
+		uint32_t                X[16];
+		uint32_t                a = A;
+		uint32_t                b = B;
+		uint32_t                c = C;
+		uint32_t                d = D;
+		int                             i;
+		uint32_t                f;
+		uint32_t                g;
+		int                             k;
+
+		k = 0;
+		while (k < 16) {
+				X[k] = (uint32_t)block[k * 4]
+					 | ((uint32_t)block[k * 4 + 1] << 8)
+					 | ((uint32_t)block[k * 4 + 2] << 16)
+					 | ((uint32_t)block[k * 4 + 3] << 24);
+				k++;
+		}
 
 		i = 1;
 		while (i <= 64)
@@ -135,9 +150,14 @@ void	ft_md5_algo(const unsigned char *message, size_t len, unsigned char *digest
 		D += d;
 		offset += 64;
 	}
-	ft_memcpy(digest, &A, 4);
-	ft_memcpy(digest + 4, &B, 4);
-	ft_memcpy(digest + 8, &C, 4);
-	ft_memcpy(digest + 12, &D, 4);
+    uint32_t h[4] = {A, B, C, D};
+    int k = 0;
+    while (k < 4) {
+        digest[k * 4]     = h[k] & 0xff;
+        digest[k * 4 + 1] = (h[k] >> 8) & 0xff;
+        digest[k * 4 + 2] = (h[k] >> 16) & 0xff;
+        digest[k * 4 + 3] = (h[k] >> 24) & 0xff;
+        k++;
+    }
 	free(padding);
 }
