@@ -55,18 +55,23 @@ def save_model(theta0, theta1):
     with open("model.json", "w") as f:
         json.dump({"theta0": theta0, "theta1": theta1}, f)
 
-def ft_max(n : list[int]) -> int:
+def ft_max(n: list[float]) -> float:
     maximum = n[0]
+
     for number in n:
         if number > maximum:
             maximum = number
+
     return maximum
 
-def ft_min(n : list[int]) -> int:
+
+def ft_min(n: list[float]) -> float:
     minimum = n[0]
+
     for number in n:
         if number < minimum:
             minimum = number
+
     return minimum
 
 def plot_result(miles_raw, prices, theta0, theta1):
