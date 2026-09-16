@@ -55,11 +55,24 @@ def save_model(theta0, theta1):
     with open("model.json", "w") as f:
         json.dump({"theta0": theta0, "theta1": theta1}, f)
 
+def ft_max(n : list[int]) -> int:
+    maximum = n[0]
+    for number in n:
+        if number > maximum:
+            maximum += n
+    return maximum
+
+def ft_min(n : list[int]) -> int:
+    minimum = n[0]
+    for number in n:
+        if number < minimum:
+            minimum += number
+    return minimum
 
 def plot_result(miles_raw, prices, theta0, theta1):
     plt.scatter(miles_raw, prices, color="steelblue", label="Data")
 
-    x_line = [min(miles_raw), max(miles_raw)]
+    x_line = [ft_min(miles_raw), ft_max(miles_raw)]
     y_line = [theta0 + theta1 * (x / 100000) for x in x_line]
     plt.plot(x_line, y_line, color="pink", label="Fitted Line")
 

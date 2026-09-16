@@ -26,20 +26,34 @@ def load_model():
 def estimate_price(mileage, theta0, theta1):
     return theta0 + theta1 * mileage
 
+def ft_sum(a : int, b : int) -> int:
+    return a + b
+
+def ft_abs(n: int) -> int:
+    return -n if n < 0 else n
+
+def ft_len(numbers: list) -> int:
+    count = 0
+
+    for element in numbers:
+        count += 1
+
+    return count
+
 
 def compute_precision(miles, prices, theta0, theta1):
-    m = len(miles)
+    m = ft_len(miles)
 
     predictions = [estimate_price(x / 100000, theta0, theta1) for x in miles]
 
-    mae = sum(abs(predictions[i] - prices[i]) for i in range(m)) / m
+    mae = ft_sum(ft_abs(predictions[i] - prices[i]) for i in range(m)) / m
 
-    mse = sum((predictions[i] - prices[i]) ** 2 for i in range(m)) / m
+    mse = ft_sum((predictions[i] - prices[i]) ** 2 for i in range(m)) / m
     rmse = mse ** 0.5
 
-    mean_price = sum(prices) / m
-    ss_res = sum((prices[i] - predictions[i]) ** 2 for i in range(m))
-    ss_tot = sum((prices[i] - mean_price) ** 2 for i in range(m))
+    mean_price = ft_sum(prices) / m
+    ss_res = ft_sum((prices[i] - predictions[i]) ** 2 for i in range(m))
+    ss_tot = ft_sum((prices[i] - mean_price) ** 2 for i in range(m))
     r2 = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0
 
     return mae, rmse, r2
