@@ -26,8 +26,13 @@ def load_model():
 def estimate_price(mileage, theta0, theta1):
     return theta0 + theta1 * mileage
 
-def ft_sum(a : int, b : int) -> int:
-    return a + b
+def ft_sum(numbers) -> float:
+    total = 0
+
+    for number in numbers:
+        total += number
+
+    return total
 
 def ft_abs(n: int) -> int:
     return -n if n < 0 else n

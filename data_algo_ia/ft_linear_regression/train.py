@@ -59,14 +59,14 @@ def ft_max(n : list[int]) -> int:
     maximum = n[0]
     for number in n:
         if number > maximum:
-            maximum += n
+            maximum = number
     return maximum
 
 def ft_min(n : list[int]) -> int:
     minimum = n[0]
     for number in n:
         if number < minimum:
-            minimum += number
+            minimum = number
     return minimum
 
 def plot_result(miles_raw, prices, theta0, theta1):
