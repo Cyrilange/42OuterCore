@@ -38,12 +38,7 @@ def load_data() -> tuple[list[float], list[float]]:
     return miles, prices
 
 
-def train(
-    miles: list[float],
-    prices: list[float],
-    lr: float,
-    iterations: int
-) -> tuple[float, float]:
+def train( miles: list[float], prices: list[float], lr: float, iterations: int ) -> tuple[float, float]:
     """
     Train the linear regression model using gradient descent.
 
@@ -125,12 +120,7 @@ def ft_min(n: list[float]) -> float:
     return minimum
 
 
-def plot_result(
-    miles_raw: list[float],
-    prices: list[float],
-    theta0: float,
-    theta1: float
-) -> None:
+def plot_result( miles_raw: list[float], prices: list[float], theta0: float, theta1: float ) -> None:
     """
     Plot the training data and the fitted linear regression line.
 
